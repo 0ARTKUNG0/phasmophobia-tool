@@ -470,6 +470,21 @@ body::before {
 .speed-fast { background: rgba(255,71,87,0.12); color: var(--accent-red); border: 1px solid rgba(255,71,87,0.2); }
 .speed-variable { background: rgba(230,126,34,0.12); color: var(--accent-orange); border: 1px solid rgba(230,126,34,0.2); }
 
+.estimated-badge {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(241,196,15,0.12);
+  color: var(--accent-yellow);
+  border: 1px solid rgba(241,196,15,0.3);
+  letter-spacing: 0.5px;
+  margin-left: 6px;
+  vertical-align: middle;
+  cursor: help;
+}
+
 .ghost-evidence-row {
   padding: 10px 20px;
   display: flex;
@@ -543,6 +558,26 @@ body::before {
   line-height: 1.7;
   padding-left: 14px;
   border-left: 2px solid rgba(255,255,255,0.06);
+}
+
+.estimated-notice {
+  font-size: 0.8rem;
+  color: var(--accent-yellow);
+  background: rgba(241,196,15,0.06);
+  border: 1px solid rgba(241,196,15,0.2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  line-height: 1.6;
+}
+
+.estimated-notice strong { color: var(--accent-yellow); }
+
+.journal-quote .detail-text {
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.02);
+  padding: 10px 14px;
+  border-left: 2px solid var(--accent-purple);
+  border-radius: 0 6px 6px 0;
 }
 
 .expand-hint {
@@ -1168,28 +1203,32 @@ const GHOSTS = [
   {
     name: "Aswang",
     evidence: ["freezing", "ghost_writing", "dots"],
-    speed: "1.5 – 2.5 m/s",
+    speed: "1.7 – ~3.0 m/s",
     speedClass: "speed-fast",
     huntThreshold: "50%",
     isNew: true,
-    strength: "เมื่อเห็นเป้าหมาย (LoS) จะเร่งความเร็วในการไล่ล่าให้สูงขึ้นกว่าผีปกติ ออกตามล่าด้วยความก้าวร้าวเหมือนสัตว์ป่า เล่าขานว่ากัดกินเลือดและศพ ลักษณะดุร้ายแต่กลมกลืนกับสภาพแวดล้อมเมืองได้",
-    weakness: "ชอบ 'ไล่ล่า' มากกว่า 'ค้นหา' — ถ้าตัดสายตา (LoS) และซ่อนตัวเงียบ ๆ มันจะค้นหาช้าลงและไม่ค่อยเดินสำรวจอย่างเป็นระบบ ผู้เล่นที่ซ่อนเก่งหนีรอดง่าย",
-    speedDetail: "พื้นฐานประมาณ 1.5 m/s ขณะเดินสำรวจ (ช้ากว่าผีปกติเล็กน้อย เพราะไม่ขยันค้นหา) เมื่อเห็นผู้เล่นจะเร่งทันทีถึง ~2.5 m/s และคงความเร็วนั้นไว้ตลอดเวลาที่เห็นเป้าหมาย ไม่ใช้ระบบ LoS acceleration แบบสะสมเหมือนผีทั่วไป — เร็วทันทีที่เห็นแล้วช้าลงทันทีเมื่อตัด LoS",
-    behavior: "เป็นผีล่าด้วยสายตา ขณะ Hunt จะรักษา LoS กับเป้าหมายอย่างก้าวร้าว แต่ถ้าตัด LoS ได้จะไม่ค้นหาอย่างมีระบบ มักวนซ้ำที่เดิมและพลาดผู้เล่นที่ซ่อนนิ่ง ๆ พฤติกรรมคล้ายสัตว์นักล่ามากกว่าผีนักสำรวจ",
-    tips: "ตัด LoS ทันทีที่ Hunt เริ่ม! ซ่อนหลังเฟอร์นิเจอร์/ในตู้ และอยู่เงียบสนิท ผีจะวิ่งวนแต่หาไม่เจอ ถ้าผีเร็วมากตอนเห็นคุณ แต่ดูเหมือนเดินวนเปล่า ๆ เมื่อหายตัวไป = สงสัย Aswang หลักฐาน Freezing + Ghost Writing + DOTS ผสมกับพฤติกรรม 'ไล่เร็ว แต่หาช้า' ยืนยันได้"
+    estimated: true,
+    description: "Rumored to gorge itself on blood and corpses, the Aswang is feral yet capable of blending into urban environments.",
+    strength: "เมื่อเห็นเป้าหมาย Aswang จะเร็วขึ้นในการไล่ล่า มี LoS acceleration ที่เร็วกว่าผีปกติมาก",
+    weakness: "Aswang ชอบไล่มากกว่าค้นหา — เมื่อเสีย LoS มันจะไปที่ตำแหน่งที่เห็นล่าสุดแทนที่จะวนค้นหาใหม่ ทำให้หลอกมันได้ด้วยการเปลี่ยนที่ซ่อน",
+    speedDetail: "คาดการณ์: พื้นฐาน 1.7 m/s เร็วขึ้นมากเมื่อเห็นเป้าหมาย (LoS) อาจถึง ~3.0 m/s LoS acceleration เร็วกว่าผีปกติ (ไม่ต้องรอ 13 วินาที) กลไกคล้าย Revenant แต่เน้นการไล่แทนการค้นหา",
+    behavior: "มาจากตำนานฟิลิปปินส์ เป็นปีศาจกินเลือดที่แปลงร่างได้ ในเกมมันจะเร็วขึ้นอย่างเห็นได้ชัดเมื่อเห็นผู้เล่น แต่เมื่อเสีย LoS จะไม่ค้นหาอย่างฉลาด แค่ไปที่ตำแหน่งสุดท้ายที่เห็น",
+    tips: "ตัด LoS ให้เร็วที่สุดแล้วเปลี่ยนที่ซ่อนทันที อย่าอยู่ที่เดิม เพราะมันจะพุ่งไปที่จุดที่เห็นคุณล่าสุด ถ้าเปลี่ยนที่แล้วมันจะหลงทาง ⚠️ ข้อมูลความเร็วเป็นการคาดการณ์ รอ datamine ยืนยัน"
   },
   {
     name: "Kormos",
     evidence: ["ghost_orb", "spirit_box", "uv"],
-    speed: "1.7 m/s",
-    speedClass: "speed-normal",
+    speed: "~1.7 m/s",
+    speedClass: "speed-variable",
     huntThreshold: "50%",
     isNew: true,
-    strength: "ได้ยินเสียงดีเยี่ยม! ชื่อแปลว่า 'ผู้ไม่เห็น' (the one who does not see) ขณะ Hunt จะตรวจจับเสียงผู้เล่นได้ในระยะที่กว้างกว่าผีปกติมาก (เสียงพูด, เสียงฝีเท้าวิ่ง, อุปกรณ์เปิด, ของหล่น) แม้คุณซ่อนเงียบก็ยังถูกได้ยินถ้าเดินเร็วหรือพูดเสียงเบา",
-    weakness: "ตาเกือบบอด! ขณะ Hunt มองเห็นผู้เล่นได้ในระยะใกล้มากเท่านั้น (สั้นกว่าผีอื่นมาก) ไฟฉาย, เห็นตัวผู้เล่น, หรือเดินผ่านหน้าระยะไกลก็ไม่กระตุ้นมัน",
-    speedDetail: "ความเร็วมาตรฐาน 1.7 m/s พร้อม LoS acceleration ปกติ ความอันตรายไม่ได้อยู่ที่ความเร็ว แต่อยู่ที่การตรวจจับด้วยเสียง ทำให้หนียากแม้จะเร็วเท่ากันเพราะมันรู้ตำแหน่งคุณจากเสียง",
-    behavior: "ใช้เสียงนำทางขณะ Hunt แทนการมองเห็น เดินเข้าหาแหล่งเสียงทันที (พูด/วิ่ง/อุปกรณ์ดัง) แต่ละเลยผู้เล่นที่ยืนนิ่งเงียบใกล้ ๆ ขณะปกตินอก Hunt มีพฤติกรรมทั่วไป",
-    tips: "เดินช้า (เดิน Walk ไม่วิ่ง) ปิดอุปกรณ์ทุกอย่าง หยุดพูด ใช้ Crouch เพื่อให้เสียงฝีเท้าเงียบที่สุด ห้ามวิ่งหนีเด็ดขาด! ถ้าผีหันมาเดินตรงเข้าหาทันทีที่คุณพูดหรือวิ่ง แต่ไม่สนใจคุณเมื่อยืนนิ่งใกล้ ๆ = Kormos แน่นอน ตรงข้ามกับ Phantom — Kormos กลัวเสียง ไม่กลัวสายตา"
+    estimated: true,
+    description: "Translating to the one who 'does not see', the Kormos is blind but uses its heightened hearing to hunt down victims.",
+    strength: "Kormos มีการได้ยินที่แข็งแกร่งมาก ตรวจจับเสียงผู้เล่นได้ในระยะไกลกว่าผีอื่น (เสียงพูด, ฝีเท้า, อุปกรณ์)",
+    weakness: "Kormos แทบจะตาบอด — ไม่มี Line-of-Sight acceleration ถ้าผู้เล่นเงียบสนิทมันจะหาตัวไม่เจอ",
+    speedDetail: "คาดการณ์: พื้นฐาน 1.7 m/s ไม่มี LoS acceleration เพราะตาบอด อาจมี Sound-based acceleration แทน (ยิ่งมีเสียงมากยิ่งเร็ว) ถ้าเงียบสนิทอาจช้าลงหรือหลงทาง กลไกเฉพาะตัวที่ไม่เหมือนผีอื่น",
+    behavior: "แปลว่า 'ผู้ที่ไม่มองเห็น' ตรวจจับผ่านเสียงเท่านั้น ระยะได้ยินน่าจะกว้างกว่าผีปกติมาก พูด, วิ่ง, เปิดอุปกรณ์ = อันตราย เงียบ = ปลอดภัย ตรงข้ามกับ Yokai ที่ได้ยินระยะสั้น Kormos น่าจะได้ยินระยะไกลมาก",
+    tips: "หยุดพูดทันทีเมื่อ Hunt เริ่ม ปิดอุปกรณ์ทั้งหมด อย่าวิ่ง (เสียงฝีเท้าดัง) เดินช้า ๆ หรือหยุดนิ่ง ถ้าเงียบจริง ๆ มันอาจหาคุณไม่เจอเลย ⚠️ ข้อมูลเป็นการคาดการณ์ รอ datamine ยืนยัน"
   }
 ];
 
@@ -1366,10 +1405,17 @@ function renderGhosts() {
             ${matchPill}
           </div>
         </div>
-        <div class="ghost-speed-badge ${ghost.speedClass}">${escapeHtml(ghost.speed)}</div>
+        <div class="ghost-speed-badge ${ghost.speedClass}" ${ghost.estimated ? 'title="ข้อมูลความเร็วเป็นการคาดการณ์ — รอ datamine ยืนยัน"' : ''}>${escapeHtml(ghost.speed)}${ghost.estimated ? '<span class="estimated-badge" title="ข้อมูลคาดการณ์">≈</span>' : ''}</div>
       </div>
       <div class="ghost-evidence-row">${evidenceTags}${bonusTags}</div>
       <div class="ghost-details">
+        ${ghost.description ? `<div class="detail-section journal-quote">
+          <div class="detail-label" style="color:var(--text-dim);">📜 บันทึก (Journal)</div>
+          <div class="detail-text" style="font-style:italic;">${escapeHtml(ghost.description)}</div>
+        </div>` : ''}
+        ${ghost.estimated ? `<div class="detail-section">
+          <div class="estimated-notice">⚠️ <strong>ข้อมูลคาดการณ์</strong> — ผีตัวนี้พึ่งเปิดตัวใน v0.17.1.0 (12 พ.ค. 2026) ข้อมูลความเร็ว, Hunt Threshold, และกลไกบางส่วนเป็นการคาดการณ์จากคำอธิบายในเกม รอ datamine จากชุมชนยืนยัน</div>
+        </div>` : ''}
         <div class="detail-section">
           <div class="detail-label label-strength">⚔ จุดแข็ง</div>
           <div class="detail-text">${escapeHtml(ghost.strength)}</div>
