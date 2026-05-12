@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0b0f">
+<title>Phasmophobia Ghost Identifier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Creepster&family=Source+Code+Pro:wght@400;600&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-dark: #0a0b0f;
+  --bg-card: #12141c;
+  --bg-card-hover: #1a1d2a;
+  --bg-evidence: #161824;
+  --border: #2a2d3e;
+  --border-active: #6e5cff;
+  --text-primary: #e8e6f0;
+  --text-secondary: #8b89a0;
+  --text-dim: #5a586e;
+  --accent-purple: #6e5cff;
+  --accent-red: #ff4757;
+  --accent-green: #2ecc71;
+  --accent-yellow: #f1c40f;
+  --accent-blue: #3498db;
+  --accent-orange: #e67e22;
+  --accent-cyan: #00d2d3;
+  --glow-purple: rgba(110, 92, 255, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  font-family: 'Noto Sans Thai', 'Outfit', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(110,92,255,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgba(255,71,87,0.04) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.header {
+  text-align: center;
+  padding: 30px 0 24px;
+}
+
+.header h1 {
+  font-family: 'Creepster', cursive;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  color: var(--text-primary);
+  letter-spacing: 4px;
+  text-shadow: 0 0 40px rgba(110,92,255,0.4), 0 0 80px rgba(110,92,255,0.15);
+  margin-bottom: 8px;
+}
+
+.header .subtitle {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-weight: 300;
+  letter-spacing: 2px;
+}
+
+.stats-bar {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.stat-item span {
+  color: var(--accent-purple);
+  font-weight: 600;
+}
+
+.search-bar {
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.search-input {
+  width: 100%;
+  background: var(--bg-evidence);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 50px 14px 48px;
+  color: var(--text-primary);
+  font-family: 'Noto Sans Thai', 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 0 3px rgba(110,92,255,0.1);
+}
+
+.search-input::placeholder {
+  color: var(--text-dim);
+}
+
+.search-icon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-dim);
+  pointer-events: none;
+  font-size: 1.1rem;
+}
+
+.search-clear {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,71,87,0.1);
+  border: 1px solid rgba(255,71,87,0.3);
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  color: var(--accent-red);
+  font-size: 1rem;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.search-clear:hover { background: rgba(255,71,87,0.2); }
+.search-clear.visible { display: flex; }
+
+.search-hint {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'Source Code Pro', monospace;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  background: rgba(255,255,255,0.04);
+  padding: 3px 7px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  pointer-events: none;
+}
+
+.search-input:focus ~ .search-hint,
+.search-clear.visible ~ .search-hint { display: none; }
+
+.evidence-panel {
+  background: var(--bg-evidence);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.evidence-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent-purple), transparent);
+  opacity: 0.5;
+}
+
+.evidence-panel h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.evidence-panel h2::before {
+  content: '◈';
+  color: var(--accent-purple);
+}
+
+.evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+.evidence-btn {
+  position: relative;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--text-secondary);
+  font-family: 'Noto Sans Thai', 'Outfit', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.evidence-btn:hover {
+  background: rgba(110,92,255,0.06);
+  border-color: rgba(110,92,255,0.3);
+  color: var(--text-primary);
+}
+
+.evidence-btn.selected {
+  background: rgba(110,92,255,0.12);
+  border-color: var(--accent-purple);
+  color: var(--text-primary);
+  box-shadow: 0 0 20px rgba(110,92,255,0.1), inset 0 0 20px rgba(110,92,255,0.05);
+}
+
+.evidence-btn.excluded {
+  background: rgba(255,71,87,0.08);
+  border-color: rgba(255,71,87,0.4);
+  color: rgba(255,71,87,0.7);
+  text-decoration: line-through;
+}
+
+.evidence-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.evidence-btn.selected .evidence-icon { background: var(--accent-purple); color: #fff; }
+.evidence-btn.excluded .evidence-icon { background: var(--accent-red); color: #fff; }
+.evidence-btn:not(.selected):not(.excluded) .evidence-icon { background: rgba(255,255,255,0.06); }
+
+.evidence-hotkey {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  background: rgba(0,0,0,0.3);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+}
+
+.evidence-btn.selected .evidence-hotkey { color: var(--accent-purple); border-color: rgba(110,92,255,0.4); }
+.evidence-btn.excluded .evidence-hotkey { color: var(--accent-red); border-color: rgba(255,71,87,0.4); }
+
+.controls-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.legend-item { display: flex; align-items: center; gap: 6px; }
+
+.legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 3px;
+  border: 1px solid;
+}
+
+.legend-dot.included { background: rgba(110,92,255,0.3); border-color: var(--accent-purple); }
+.legend-dot.excluded { background: rgba(255,71,87,0.2); border-color: var(--accent-red); }
+
+.btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.icon-btn {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: var(--text-secondary);
+  font-family: 'Noto Sans Thai', 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.icon-btn:hover {
+  background: rgba(110,92,255,0.1);
+  border-color: var(--accent-purple);
+  color: var(--text-primary);
+}
+
+.reset-btn {
+  background: rgba(255,71,87,0.1);
+  border: 1px solid rgba(255,71,87,0.3);
+  color: var(--accent-red);
+}
+
+.reset-btn:hover {
+  background: rgba(255,71,87,0.2);
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+}
+
+.match-count {
+  font-family: 'Noto Sans Thai', 'Source Code Pro', monospace;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.match-count span {
+  color: var(--accent-green);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.hint-text {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.ghost-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 500px) {
+  .ghost-grid { grid-template-columns: 1fr; }
+  .container { padding: 14px; }
+  .evidence-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.ghost-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+  cursor: pointer;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.ghost-card:hover {
+  border-color: rgba(110,92,255,0.4);
+  background: var(--bg-card-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3), 0 0 20px rgba(110,92,255,0.05);
+}
+
+.ghost-card.matched { border-color: rgba(46,204,113,0.4); box-shadow: 0 0 20px rgba(46,204,113,0.08); }
+.ghost-card.perfect-match { border-color: var(--accent-green); box-shadow: 0 0 24px rgba(46,204,113,0.2); }
+.ghost-card.eliminated { opacity: 0.25; filter: grayscale(0.8); pointer-events: none; transform: scale(0.98); }
+
+.ghost-card-header {
+  padding: 16px 20px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  gap: 10px;
+}
+
+.ghost-name-section { flex: 1; min-width: 0; }
+
+.ghost-name {
+  font-family: 'Creepster', cursive;
+  font-size: 1.6rem;
+  color: var(--text-primary);
+  letter-spacing: 1px;
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.ghost-meta-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.ghost-id {
+  font-family: 'Noto Sans Thai', sans-serif;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
+.match-pill {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(46,204,113,0.12);
+  color: var(--accent-green);
+  border: 1px solid rgba(46,204,113,0.25);
+  font-weight: 600;
+}
+
+.match-pill.zero {
+  background: rgba(255,255,255,0.04);
+  color: var(--text-dim);
+  border-color: var(--border);
+}
+
+.ghost-speed-badge {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 0.75rem;
+  padding: 5px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.speed-slow { background: rgba(46,204,113,0.12); color: var(--accent-green); border: 1px solid rgba(46,204,113,0.2); }
+.speed-normal { background: rgba(52,152,219,0.12); color: var(--accent-blue); border: 1px solid rgba(52,152,219,0.2); }
+.speed-fast { background: rgba(255,71,87,0.12); color: var(--accent-red); border: 1px solid rgba(255,71,87,0.2); }
+.speed-variable { background: rgba(230,126,34,0.12); color: var(--accent-orange); border: 1px solid rgba(230,126,34,0.2); }
+
+.ghost-evidence-row {
+  padding: 10px 20px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  background: rgba(0,0,0,0.15);
+}
+
+.evidence-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 5px;
+  background: rgba(110,92,255,0.1);
+  color: rgba(110,92,255,0.9);
+  border: 1px solid rgba(110,92,255,0.15);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.evidence-tag.matched {
+  background: rgba(46,204,113,0.15);
+  color: var(--accent-green);
+  border-color: rgba(46,204,113,0.4);
+}
+
+.evidence-tag.bonus {
+  background: rgba(241,196,15,0.1);
+  color: rgba(241,196,15,0.9);
+  border-color: rgba(241,196,15,0.15);
+}
+
+.ghost-details {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), padding 0.3s ease;
+  padding: 0 20px;
+}
+
+.ghost-card.expanded .ghost-details {
+  max-height: 2000px;
+  padding: 16px 20px;
+}
+
+.detail-section { margin-bottom: 12px; }
+.detail-section:last-child { margin-bottom: 0; }
+
+.detail-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.label-strength { color: var(--accent-red); }
+.label-weakness { color: var(--accent-green); }
+.label-speed { color: var(--accent-orange); }
+.label-behavior { color: var(--accent-cyan); }
+.label-tips { color: var(--accent-yellow); }
+
+.detail-text {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  padding-left: 14px;
+  border-left: 2px solid rgba(255,255,255,0.06);
+}
+
+.expand-hint {
+  padding: 10px 20px 14px;
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  transition: color 0.2s;
+}
+
+.ghost-card:hover .expand-hint { color: var(--text-secondary); }
+.ghost-card.expanded .expand-hint { color: var(--accent-purple); }
+
+.new-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(241,196,15,0.15);
+  color: var(--accent-yellow);
+  border: 1px solid rgba(241,196,15,0.3);
+  letter-spacing: 1px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.no-results {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-dim);
+  font-size: 1rem;
+  grid-column: 1 / -1;
+}
+
+.no-results-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+  opacity: 0.4;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-purple); }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.footer {
+  text-align: center;
+  padding: 40px 0 20px;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+.footer a { color: var(--accent-purple); text-decoration: none; }
+.footer a:hover { text-decoration: underline; }
+
+/* Help modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(6px);
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-overlay.visible { display: flex; }
+
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  max-width: 540px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.modal h2 {
+  font-family: 'Creepster', cursive;
+  font-size: 1.8rem;
+  color: var(--text-primary);
+  letter-spacing: 2px;
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(255,71,87,0.1);
+  border: 1px solid rgba(255,71,87,0.3);
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  color: var(--accent-red);
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hotkey-list { display: grid; gap: 8px; }
+
+.hotkey-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.hotkey-row span:first-child {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+kbd {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 0.78rem;
+  background: rgba(110,92,255,0.15);
+  color: var(--accent-purple);
+  border: 1px solid rgba(110,92,255,0.4);
+  border-radius: 5px;
+  padding: 3px 8px;
+  font-weight: 600;
+  margin: 0 2px;
+}
+
+.hotkey-note {
+  margin-top: 16px;
+  padding: 12px 14px;
+  background: rgba(241,196,15,0.06);
+  border: 1px solid rgba(241,196,15,0.2);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Toast notification */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--bg-card);
+  border: 1px solid var(--accent-purple);
+  border-radius: 10px;
+  padding: 12px 20px;
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  z-index: 200;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4), 0 0 20px rgba(110,92,255,0.2);
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toast.visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.toast.exclude { border-color: var(--accent-red); box-shadow: 0 8px 30px rgba(0,0,0,0.4), 0 0 20px rgba(255,71,87,0.2); }
+.toast.include { border-color: var(--accent-green); box-shadow: 0 8px 30px rgba(0,0,0,0.4), 0 0 20px rgba(46,204,113,0.2); }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>Phasmophobia</h1>
+    <div class="subtitle">เครื่องมือระบุผี — ครบทั้ง 29 ตัว</div>
+    <div class="stats-bar">
+      <div class="stat-item">ผู้เล่นเดิน <span>1.6 m/s</span></div>
+      <div class="stat-item">ผู้เล่นวิ่ง <span>3.0 m/s</span> (3วิ)</div>
+      <div class="stat-item">ผีพื้นฐาน <span>1.7 m/s</span></div>
+      <div class="stat-item">LoS สูงสุด <span>2.805 m/s</span></div>
+    </div>
+  </div>
+
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input id="searchInput" class="search-input" type="text" placeholder="ค้นหาผี... (ชื่อ, ความสามารถ, จุดอ่อน, พฤติกรรม)" autocomplete="off">
+    <button class="search-clear" id="searchClear" title="ล้างการค้นหา">✕</button>
+    <span class="search-hint" id="searchHint">กด /</span>
+  </div>
+
+  <div class="evidence-panel">
+    <h2>เลือกหลักฐาน</h2>
+    <div class="evidence-grid" id="evidenceGrid"></div>
+    <div class="controls-row">
+      <div class="legend">
+        <span class="legend-item"><span class="legend-dot included"></span> เลือก</span>
+        <span class="legend-item"><span class="legend-dot excluded"></span> ตัดออก</span>
+        <span class="legend-item hint-text">คลิกซ้าย = เลือก | คลิกขวา / กดค้าง = ตัดออก</span>
+      </div>
+      <div class="btn-group">
+        <div class="match-count">ผีที่เป็นไปได้: <span id="matchCount">29</span></div>
+        <button class="icon-btn" id="helpBtn" title="ดูปุ่มลัด">⌨ ปุ่มลัด</button>
+        <button class="icon-btn reset-btn" id="resetBtn">รีเซ็ตทั้งหมด</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ghost-grid" id="ghostGrid"></div>
+
+  <div class="footer">
+    Phasmophobia Ghost Identifier — อัปเดตล่าสุด 2026 (29 ตัว) ·
+    <a href="#" id="aboutLink">เกี่ยวกับ</a>
+  </div>
+</div>
+
+<!-- Help modal -->
+<div class="modal-overlay" id="helpModal">
+  <div class="modal">
+    <button class="modal-close" id="helpClose">✕</button>
+    <h2>ปุ่มลัด</h2>
+    <div class="hotkey-list">
+      <div class="hotkey-row"><span>เลือกหลักฐาน</span><span><kbd>1</kbd>–<kbd>7</kbd></span></div>
+      <div class="hotkey-row"><span>ตัดหลักฐานออก</span><span><kbd>Shift</kbd>+<kbd>1</kbd>–<kbd>7</kbd></span></div>
+      <div class="hotkey-row"><span>ค้นหา</span><span><kbd>/</kbd></span></div>
+      <div class="hotkey-row"><span>รีเซ็ตทั้งหมด</span><span><kbd>R</kbd></span></div>
+      <div class="hotkey-row"><span>ล้างการค้นหา / ปิดหน้าต่าง</span><span><kbd>Esc</kbd></span></div>
+      <div class="hotkey-row"><span>แสดง / ซ่อนปุ่มลัด</span><span><kbd>?</kbd></span></div>
+    </div>
+    <div class="hotkey-note">
+      💡 <strong>เคล็ดลับ:</strong> เปิดเกม Phasmophobia แบบ Windowed Borderless แล้วเปิดหน้านี้ในเบราว์เซอร์ Alt+Tab สลับมาเลือกหลักฐานด้วยปุ่ม 1-7 ได้รวดเร็ว ไม่ต้องคลิก!
+    </div>
+    <div class="hotkey-note" style="background: rgba(110,92,255,0.06); border-color: rgba(110,92,255,0.2);">
+      🔗 <strong>แชร์การค้นหา:</strong> URL จะอัปเดตเมื่อคุณเลือกหลักฐาน คัดลอกลิงก์เพื่อแชร์/บันทึกการค้นหาได้
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const EVIDENCE_TYPES = [
+  { id: 'emf', name: 'EMF Level 5', icon: '📡', key: '1' },
+  { id: 'spirit_box', name: 'Spirit Box', icon: '📻', key: '2' },
+  { id: 'uv', name: 'Ultraviolet', icon: '🔦', key: '3' },
+  { id: 'ghost_orb', name: 'Ghost Orb', icon: '🔮', key: '4' },
+  { id: 'ghost_writing', name: 'Ghost Writing', icon: '📖', key: '5' },
+  { id: 'freezing', name: 'Freezing Temps', icon: '❄️', key: '6' },
+  { id: 'dots', name: 'DOTS Projector', icon: '⚡', key: '7' }
+];
+
+const GHOSTS = [
+  {
+    name: "Spirit",
+    evidence: ["emf", "spirit_box", "ghost_writing"],
+    speed: "1.7 m/s",
+    speedClass: "speed-normal",
+    huntThreshold: "50%",
+    isNew: false,
+    strength: "ไม่มีจุดแข็งพิเศษ เป็นผีพื้นฐานที่สมดุลทุกด้าน",
+    weakness: "Smudge Stick หยุดการ Hunt ได้นาน 180 วินาที (ปกติ 90 วิ) นานที่สุดในเกม",
+    speedDetail: "ความเร็วมาตรฐาน 1.7 m/s เร่งได้ถึง 2.805 m/s เมื่อเห็นตัวผู้เล่นต่อเนื่อง 13 วินาที (LoS)",
+    behavior: "พบได้บ่อยที่สุด ไม่มีพฤติกรรมพิเศษ ไม่มีกลไกการเคลื่อนที่พิเศษ",
+    tips: "ใช้ Smudge แล้วผีไม่ Hunt นานผิดปกติ (3 นาที) = สงสัย Spirit ได้ เป็นผี 'ตัดตัวเลือก' ที่ดี"
+  },
+  {
+    name: "Wraith",
+    evidence: ["emf", "spirit_box", "dots"],
+    speed: "1.7 m/s",
+    speedClass: "speed-normal",
+    huntThreshold: "50%",
+    isNew: false,
+    strength: "ไม่ทิ้งรอยเท้า UV ในเกลือ สามารถเทเลพอร์ตหาผู้เล่นได้ (สร้าง EMF 2/5 ที่จุดเทเลพอร์ต) ติดตามตัวยาก",
+    weakness: "ไม่เหยียบเกลือเด็ดขาด ถ้าวางเกลือแล้วไม่มีรอย = สงสัย Wraith",
+    speedDetail: "ความเร็วมาตรฐาน 1.7 m/s พร้อม LoS acceleration ปกติ การเทเลพอร์ตเกิดขึ้นทันทีและไม่ส่งผลต่อความเร็วขณะ Hunt",
+    behavior: "เทเลพอร์ตหาผู้เล่นแบบสุ่มได้ สร้างค่า EMF ที่จุดปลายทาง ไม่ใช่การ Hunt แค่เป็น ability เฉพาะตัว ไม่ทิ้งรอยเท้า UV เมื่อเดินผ่านเกลือ",
+    tips: "วางเกลือใกล้ห้องผี ถ้าเกลือไม่ถูกรบกวนหรือไม่มีรอย UV = Wraith ค่า EMF 2 ที่ปรากฏห่างจากห้องผีอาจบ่งบอกว่าเทเลพอร์ต"
+  },
+  {
+    name: "Phantom",
+    evidence: ["spirit_box", "uv", "dots"],
+    speed: "1.7 m/s",
+    speedClass: "speed-normal",
+    huntThreshold: "50%",
+    isNew: false,
+    strength: "มองเห็น Phantom ระหว่าง Ghost Event จะดูด Sanity เร็วมาก ขณะ Hunt จะหายตัวนาน (กะพริบช้า) ทำให้เห็นตัวยาก",
+    weakness: "ถ่ายรูประหว่าง Ghost Event จะหายไปชั่วคราว และตัวมันจะไม่ปรากฏในรูปถ่าย",
+    speedDetail: "ความเร็วมาตรฐาน 1.7 m/s พร้อม LoS acceleration ปกติ รูปแบบการกะพริบขณะ Hunt มีลักษณะเฉพาะ คือช่วงหายตัวนานกว่าผีอื่น",
+    behavior: "แทบไม่เห็นตัวขณะ Hunt เพราะช่วงหายตัวยาวมาก Ghost Event ดูด Sanity เร็วกว่าปกติ สามารถ roam ไปที่ผู้เล่นสุ่มได้",
+    tips: "ถ้าแทบไม่เห็นผีกะพริบขณะ Hunt (ช่องว่างยาวมาก) = สงสัย Phantom ถ่ายรูปตอน Ghost Event แล้วผีหายแต่ไม่อยู่ในรูป = ยืนยันได้"
+  },
+  {
+    name: "Poltergeist",
+    evidence: ["spirit_box", "uv", "ghost_writing"],
+    speed: "1.7 m/s",
+    speedClass: "speed-normal",
+    huntThreshold: "50%",
+    isNew: false,
+    strength: "ขว้างของหลายชิ้นพร้อมกันด้วยแรงมหาศาล ของที่ขว้างโดนผู้เล่นจะดูด Sanity ขว้างได้แม้ไฟเปิดอยู่",
+    weakness: "ในห้องที่ไม่มีของให้ขว้าง Poltergeist จะแทบไม่มีพลังเลย",
+    speedDetail: "ความเร็วมาตรฐาน 1.7 m/s พร้อม LoS acceleration ปกติ ไม่มีความสามารถเกี่ยวกับความเร็ว",
+    behavior: "ขว้างของบ่อยและรุนแรงกว่าผีอื่นมาก ของหลายชิ้นลอยพร้อมกัน = สัญญาณชัดเจน ของที่โดนผู้เล่นจะดูด Sanity 2% ต่อชิ้น",
+    tips: "กองของไว้ในห้องผี ถ้าของกระเด็นหลายชิ้นพร้อมกัน (โดยเฉพาะตอนไฟเปิด) = สงสัย Poltergeist ห้องเปล่าจะทำให้มันหมดพลัง"
+  },
+  {
+    name: "Banshee",
+    evidence: ["uv", "ghost_orb", "dots"],
+    speed: "1.7 m/s",
+    speedClass: "speed-normal",
+    huntThreshold: "50%",
+    isNew: false,
+    strength: "เล็งเป้าผู้เล่นคนเดียว จะ Hunt และไล่แค่คนนั้น เดินผ่านคนอื่นไปจนกว่าเป้าหมายจะตายหรือออกจากตึก",
+    weakness: "มีเสียงร้อง/ร้องเพลงเฉพาะตัวที่ตรวจจับได้ผ่าน Parabolic Microphone",
+    speedDetail: "ความเร็วมาตรฐาน 1.7 m/s พร้อม LoS acceleration ปกติ ไม่มีการเปลี่ยนความเร็วพิเศษ แต่อาจเดินเส้นทางแปลก ๆ เพื่อไปหาเป้าหมาย",
+    behavior: "มีเป้าหมายเป็นผู้เล่นคนเดียวเสมอ ขณะ Hunt จะเดินผ่านคนอื่นไปหาเป้าหมาย มีโอกาสทำ Ghost Event แบบร้องเพลงสูงกว่าผีอื่น มีเสียงกรี๊ดเฉพาะตัวบน Parabolic Mic",
+    tips: "ถ้าผีไล่แค่คนเดียวซ้ำ ๆ ขณะ Hunt และไม่สนคนอื่น = Banshee เป้าหมายออกจากตึกจะหยุด Hunt ได้ชั่วคราว"
+  },
+  {
+    name: "Jinn",
+    evidence: ["emf", "uv", "freezing"],
+    speed: "1.7 – 2.5 m/s",
+    speedClass: "speed-fast",
+    huntThreshold: "50%",
+    isNew: false,
+    strength: "เมื่อ Fuse Box เปิดอยู่ + เห็นผู้เล่น + ไกลกว่า 3 เมตร จะพุ่งด้วยความเร็วคงที่ 2.5 m/s มี ability ดูด Sanity 25% ทันที",
+    weakness: "Jinn จะไม่ปิด Fuse Box เอง เด็ดขาด ปิด Fuse Box จะตัดพลังความเร็วมันทั้งหมด",
+    speedDetail: "พื้นฐาน 1.7 m/s พุ่งเป็น 2.5 m/s เมื่อ: Fuse Box เปิด + ผู้เล่นอยู่ใน LoS + ไกลกว่า 3m เมื่อ Fuse Box ปิดจะกลับเป็น 1.7 m/s (พร้อม LoS accel ปกติ) เมื่อเข้าใกล้ผู้เล่นภายใน 3m ความเร็วจะลดลง",
+    behavior: "สร้าง EMF 2/5 ที่ Fuse Box เมื่อใช้ ability ดูด Sanity ไม่เคยปิด Fuse Box เอง Active มากเมื่อ Fuse Box เปิด",
+    tips: "ถ้า Fuse Box เปิดตลอดและได้ยินเสียงฝีเท้าเร็วจากไกลแล้วช้าลงเมื่อใกล้ = สงสัย Jinn ปิด Fuse Box เพื่อตัดข้อได้เปรียบ"
+  },
+  {
+    name: "Mare",
+    evidence: ["spirit_box", "ghost_orb", "ghost_writing"],
+    speed: "1.7 m/s",
+    speedClass: "speed-normal",
+    huntThreshold: "40-60%",
+    isNew: false,
+    strength: "Hunt ได้ที่ Sanity 60% ถ้าไฟในห้องปิด ชอบปิดไฟและทุบหลอดไฟมากกว่าผีอื่น",
+    weakness: "Hunt ได้ที่ Sanity 40% เท่านั้นถ้าไฟเปิดอยู่ ชอบ roam ไปห้องที่มืดกว่า",
+    speedDetail: "ความเร็วมาตรฐาน 1.7 m/s พร้อม LoS acceleration ปกติ ไม่มีความสามารถเกี่ยวกับความเร็ว",
+    behavior: "ปิดไฟและทุบหลอดไฟบ่อย เลือกห้องมืดเป็นห้องโปรด มี Ghost Event แบบหลอดไฟระเบิด (เฉพาะตัว) จะไม่เปิดสวิตช์ไฟเอง",
+    tips: "เปิดไฟในห้องผีไว้เพื่อกด Hunt threshold ถ้าผีปิดไฟตลอดและไม่เคยเปิดเอง = สงสัย Mare Ghost Event หลอดไฟระเบิดเป็นสัญญาณชัด"
+  },
+  {
+    name: "Revenant",
+    evidence: ["ghost_orb", "ghost_writing", "freezing"],
+    speed: "1.0 – 3.0 m/s",
+    speedClass: "speed-fast",
+    huntThreshold: "50%",
+    isNew: false,
+    strength: "วิ่ง 3.0 m/s เมื่อตรวจจับผู้เล่นได้ (ผ่านสายตา เสียง หรืออุปกรณ์) เร็วที่สุดตัวหนึ่งในเกม",
+    weakness: "เดินแค่ 1.0 m/s เมื่อไม่มีเป้าหมาย ช้ามากเหมือนหอยทาก",
+    speedDetail: "1.0 m/s เมื่อค้นหา (ไม่รู้ตำแหน่งผู้เล่น) พุ่งเป็น 3.0 m/s ทันทีเมื่อตรวจจับผู้เล่นได้ รักษาความเร็วจนถึงตำแหน่งที่รู้ล่าสุด แล้วลดความเร็ว ไม่ใช้ LoS acceleration ปกติ",
+    behavior: "ความแตกต่างของความเร็วระหว่างค้นหากับไล่ชัดเจนมาก ได้ยินเสียงฝีเท้าเปลี่ยนจากช้ามากเป็นเร็วมาก",
+    tips: "ซ่อนตัวทันทีเมื่อ Hunt เริ่ม ปิดอุปกรณ์ทั้งหมด หยุดพูด ตัด LoS ถ้าได้ยินฝีเท้าช้า ๆ แล้วเร็วขึ้นทันที = Revenant อย่าพยายามวิ่งหนี — ซ่อนเท่านั้น"
+  },
+  {
+    name: "Shade",
+    evidence: ["emf", "ghost_writing", "freezing"],
+    speed: "1.7 m/s",
+    speedClass: "speed-normal",
+    huntThreshold: "35%",
+    isNew: false,
+    strength: "ขี้อายมากและหาตัวยาก แทบไม่โต้ตอบเมื่อมีผู้เล่นอยู่ในห้องเดียวกัน ชอบซ่อนตัว",
+    weakness: "Hunt ได้เมื่อ Sanity เฉลี่ยต่ำกว่า 35% เท่านั้น Hunt น้อยเมื่อผู้เล่นรวมกลุ่มกัน",
+    speedDetail: "ความเร็วมาตรฐาน 1.7 m/s พร้อม LoS acceleration ปกติ ไม่มีความสามารถเกี่ยวกับความเร็ว",
+    behavior: "Active ต่ำมากเมื่อผู้เล่นอยู่ใกล้ ชอบ Ghost Event แบบเงาดำ/หมอกมากกว่าปรากฏตัวจริง จะไม่โต้ตอบผ่าน Ghost Writing, DOTS หรือ Ghost Event ถ้ามีคนอยู่ในห้องผี",
+    tips: "ถ้าผีไม่โต้ตอบเมื่อคุณอยู่ในห้องแต่ Active เมื่อคุณออกไป (ดูผ่านกล้อง) = สงสัย Shade ออกจากห้องแล้วสังเกตจากระยะไกล"
+  },
+  {
+    name: "Demon",
+    evidence: ["uv", "ghost_writing", "freezing"],
+    speed: "1.7 m/s",
+    speedClass: "speed-normal",
+    huntThreshold: "ทุกระดับ",
+    isNew: false,
+    strength: "Hunt ได้ทุกระดับ Sanity! Cooldown ขั้นต่ำระหว่าง Hunt แค่ 20 วินาที (ปกติ 25 วิ) สามารถเริ่ม Hunt แบบสุ่มได้ไม่สน Sanity",
+    weakness: "Crucifix มีระยะทำงาน 5 เมตร (ปกติ 3m) กว้างกว่าผีอื่น",
+    speedDetail: "ความเร็วมาตรฐาน 1.7 m/s พร้อม LoS acceleration ปกติ ความอันตรายมาจากความถี่ในการ Hunt ไม่ใช่ความเร็ว",
+    behavior: "Hunt บ่อยมาก เริ่ม Hunt ได้ทุกเวลาแม้ Sanity สูง ถาม Ouija Board แล้ว Demon จะไม่ดูด Sanity Smudge Stick หยุด Hunt ได้แค่ 60 วิ (ปกติ 90 วิ)",
+    tips: "ถ้า Hunt เกิดเร็วมากตั้งแต่ Sanity ยังสูง = สงสัย Demon วาง Crucifix ระยะกว้างเพื่อป้องกัน ทดสอบ Ouija Board โดยไม่เสีย Sanity เพื่อยืนยัน"
+  },
+  {
+    name: "Yurei",
+    evidence: ["ghost_orb", "freezing", "dots"],
+    speed: "1.7 m/s",
+    speedClass: "speed-normal",
+    huntThreshold: "50%",
+    isNew: false,
+    strength: "มี ability พิเศษดูด Sanity 15% จากผู้เล่นใกล้ ๆ ดูด Sanity เร็วกว่าผีอื่นมาก",
+    weakness: "ใช้ Smudge Stick ในห้องผีจะขังมันไว้ในห้อง 90 วินาที ประตูเปิด/ปิดแบบสุดเท่านั้น (ไม่ค้างกลาง)",
+    speedDetail: "ความเร็วมาตรฐาน 1.7 m/s พร้อม LoS acceleration ปกติ ไม่มีความสามารถเกี่ยวกับความเร็ว",
+    behavior: "กระแทกประตูเปิด/ปิดสุดเท่านั้น (ไม่เคยค้างกลาง) ไม่ทิ้ง UV บนประตูเมื่อใช้ ability ดูด Sanity มี ability ดูด Sanity นอก Ghost Event ชอบทำ Ghost Event แบบ 'ลมพุ่ง' (airball)",
+    tips: "ถ้าประตูกระแทกปิดสนิทโดยไม่มี UV + Sanity ลดฮวบ = สงสัย Yurei ใช้ Smudge ในห้องผีแล้วถ้ามันไม่ออกจากห้อง = ยืนยันได้"
+  },
+  {
+    name: "Oni",
+    evidence: ["emf", "freezing", "dots"],
+    speed: "1.7 m/s",
+    speedClass: "speed-normal",
+    huntThreshold: "50%",
+    isNew: false,
+    strength: "Active มากเมื่อมีผู้เล่นอยู่ใกล้ ดูด Sanity มากขึ้นระหว่าง Ghost Event (2 เท่า) ปรากฏตัวรุนแรงมาก",
+    weakness: "ไม่สามารถทำ Ghost Event แบบ 'หมอก/ไอ' (mist/haze) ได้ ขณะ Hunt จะเห็นตัวง่ายเพราะหายตัวน้อยกว่าผีอื่น",
+    speedDetail: "ความเร็วมาตรฐาน 1.7 m/s พร้อม LoS acceleration ปกติ ไม่มีความสามารถเกี่ยวกับความเร็ว",
+    behavior: "Active สุด ๆ เมื่อมีคนอยู่ในห้องผี ขว้างของไกลกว่าปกติ ไม่ปรากฏเป็นรูปหมอก/ไอ ขณะ Hunt เห็นตัวชัดเพราะช่วงหายตัวสั้น",
+    tips: "ถ้าผี Active มากเมื่อมีคนอยู่ แต่ไม่เคยทำ Ghost Event แบบหมอก = สงสัย Oni ขณะ Hunt เห็นตัวชัดเจนผิดปกติก็เป็นสัญญาณ"
+  },
+  {
+    name: "Yokai",
+    evidence: ["spirit_box", "ghost_orb", "dots"],
+    speed: "1.7 m/s",
+    speedClass: "speed-normal",
+    huntThreshold: "50-80%",
+    isNew: false,
+    strength: "พูดใกล้มันจะเพิ่ม Hunt threshold เป็น 80% เสียงผู้เล่นกระตุ้นความก้าวร้าว อันตรายมากเมื่อเล่นเป็นกลุ่ม",
+    weakness: "ขณะ Hunt ตรวจจับเสียงและอุปกรณ์ของผู้เล่นได้ในระยะ 2-3 เมตรเท่านั้น ซ่อนตัวง่ายมาก",
+    speedDetail: "ความเร็วมาตรฐาน 1.7 m/s พร้อม LoS acceleration ปกติ ไม่มีความสามารถเกี่ยวกับความเร็ว",
+    behavior: "ก้าวร้าวสุด ๆ เมื่อผู้เล่นพูดใกล้ ขณะ Hunt มีระยะตรวจจับจำกัดมาก (2-3m) จะเดินเข้าหา Music Box ในระยะ 2.5m เท่านั้น (ปกติ 5m)",
+    tips: "หยุดพูดเพื่อป้องกัน Hunt เร็ว ขณะ Hunt คุณปลอดภัยแม้เปิดไฟฉายถ้าอยู่ไกลกว่า 3m ถ้าผี Hunt บ่อยเมื่อทีมพูดแต่หาตัวไม่เจอ = Yokai"
+  },
+  {
+    name: "Hantu",
+    evidence: ["uv", "ghost_orb", "freezing"],
+    speed: "1.44 – 2.7 m/s",
+    speedClass: "speed-variable",
+    huntThreshold: "50%",
+    isNew: false,
+    strength: "เร็วสูงสุด 2.7 m/s ในห้องที่เย็น/Freezing ความเร็วเพิ่มตามอุณหภูมิที่ลดลง",
+    weakness: "ช้าเหลือ 1.44 m/s ในห้องอุ่น เปิด Fuse Box ให้ตึกอุ่นจะช่วยได้มาก",
+    speedDetail: "1.44 m/s ในห้องอุ่น → 2.7 m/s ในห้อง Freezing ไม่ใช้ LoS acceleration — ความเร็วขึ้นกับอุณหภูมิอย่างเดียว ชอบปิด Fuse Box เพื่อทำให้ตึกเย็นลง",
+    behavior: "มีลมหายใจเป็นไอเย็นเห็นได้ชัดขณะ Hunt (เฉพาะตัว) ชอบปิด Fuse Box บ่อย ไม่เปิด Fuse Box เอง ความเร็วเปลี่ยนตามห้องที่มันอยู่ขณะ Hunt",
+    tips: "เปิด Fuse Box ตลอดเพื่อทำให้ห้องอุ่นและมันจะช้าลง ถ้าเห็นไอเย็นจากหายใจขณะ Hunt = Hantu หนีไปห้องอุ่นขณะ Hunt ความเร็วที่เปลี่ยนตามห้องเป็นสัญญาณชัดเจน"
+  },
+  {
+    name: "Goryo",
+    evidence: ["emf", "uv", "dots"],
+    speed: "1.7 m/s",
+    speedClass: "speed-normal",
+    huntThreshold: "50%",
+    isNew: false,
+    strength: "หลักฐาน DOTS เห็นได้เฉพาะผ่านกล้องวิดีโอเท่านั้น ดูด้วยตาเปล่าในห้องไม่เห็น",
+    weakness: "แทบไม่ออกจากห้องผี อยู่ติดที่มาก",
+    speedDetail: "ความเร็วมาตรฐาน 1.7 m/s พร้อม LoS acceleration ปกติ ไม่มีความสามารถเกี่ยวกับความเร็ว",
+    behavior: "อยู่ใกล้ห้องผีตลอด เงา DOTS ปรากฏเฉพาะบนกล้อง ไม่เห็นตรง ๆ จะไม่เปลี่ยนห้องโปรด",
+    tips: "ถ้ามี EMF 5 + UV แต่ดู DOTS ด้วยตาเปล่าไม่เห็น ลองดูผ่านกล้องใน Van ถ้าเห็น DOTS เฉพาะบนกล้อง = Goryo แน่นอน"
+  },
+  {
+    name: "Myling",
+    evidence: ["emf", "uv", "ghost_writing"],
+    speed: "1.7 m/s",
+    speedClass: "speed-normal",
+    huntThreshold: "50%",
+    isNew: false,
+    strength: "เงียบมากขณะ Hunt เสียงฝีเท้าได้ยินในระยะสั้นมาก (ประมาณ 12m แทน 20m ปกติ)",
+    weakness: "ส่งเสียง paranormal ผ่าน Parabolic Microphone บ่อยกว่าผีอื่น",
+    speedDetail: "ความเร็วมาตรฐาน 1.7 m/s พร้อม LoS acceleration ปกติ ความอันตรายมาจากความเงียบ ไม่ใช่ความเร็ว",
+    behavior: "ขณะ Hunt ระยะได้ยินเสียงฝีเท้าลดลงมาก ผีอาจอยู่ใกล้มากก่อนที่คุณจะได้ยิน สร้างเสียง paranormal บ่อยนอก Hunt ตรวจจับได้ด้วย Parabolic Mic",
+    tips: "ถ้าเสียงฝีเท้าเงียบมากแล้วผีโผล่มาอยู่ตรงหน้าทันที = สงสัย Myling ใช้ Parabolic Mic ตรวจ ถ้ามีเสียงบ่อยมาก = สัญญาณ Myling"
+  },
+  {
+    name: "Onryo",
+    evidence: ["spirit_box", "ghost_orb", "freezing"],
+    speed: "1.7 m/s",
+    speedClass: "speed-normal",
+    huntThreshold: "50-60%",
+    isNew: false,
+    strength: "ทุกครั้งที่ดับเปลวไฟครั้งที่ 3 จะพยายาม Hunt ทันที (ไม่สน Sanity) อันตรายมากเมื่ออยู่ใกล้เทียน",
+    weakness: "เปลวไฟ (เทียน/Firelight) ในระยะ 4 เมตร ทำหน้าที่เหมือน Crucifix ป้องกัน Hunt ได้",
+    speedDetail: "ความเร็วมาตรฐาน 1.7 m/s พร้อม LoS acceleration ปกติ ไม่มีความสามารถเกี่ยวกับความเร็ว",
+    behavior: "ดับเทียนและ Firelight บ่อยกว่าผีอื่น เปลวไฟที่ดับครั้งที่ 3 จะบังคับ Hunt เปลวไฟที่จุดอยู่สามารถป้องกัน Hunt ได้แม้ Onryo พยายามเริ่ม",
+    tips: "วางเทียน 3 ดวงในห้องผี ถ้าเทียนดับแล้ว Hunt ตามมาทันที = Onryo เทียนที่จุดอยู่ใกล้ ๆ ทำหน้าที่เหมือน Crucifix สำหรับผีตัวนี้"
+  },
+  {
+    name: "The Twins",
+    evidence: ["emf", "spirit_box", "freezing"],
+    speed: "1.53 / 1.87 m/s",
+    speedClass: "speed-variable",
+    huntThreshold: "50%",
+    isNew: false,
+    strength: "เริ่ม Hunt ได้จาก 2 ตำแหน่ง — ห้องผี (ตัวหลัก) หรือจุดโต้ตอบล่าสุด (ตัวรอง) Hunt ได้ทีละตัว",
+    weakness: "มักโต้ตอบกับสิ่งแวดล้อม 2 จุดห่างกันพร้อม ๆ กัน",
+    speedDetail: "ตัวหลัก: 1.53 m/s (ช้ากว่าปกติ 10%) ตัวรอง: 1.87 m/s (เร็วกว่าปกติ 10%) Hunt ได้ทีละตัวเท่านั้น สุ่ม 50/50 ว่าตัวไหนจะเริ่ม ทั้งคู่ใช้ LoS acceleration ปกติ",
+    behavior: "โต้ตอบกับสิ่งแวดล้อม 2 จุดเกือบพร้อมกันได้ Hunt ทีละตัว Crucifix ใช้ได้กับตัวหลักเท่านั้น (ในห้องผี) EMF มักมาจากตัวรอง",
+    tips: "ถ้าเห็นของขยับ 2 จุดห่างกันเกือบพร้อมกัน = สงสัย Twins Hunt ที่เริ่มไกลจากห้องผี = ตัวรองเริ่ม ความเร็วต่างกันเล็กน้อยระหว่าง Hunt ช่วยยืนยัน"
+  },
+  {
+    name: "Raiju",
+    evidence: ["emf", "ghost_orb", "dots"],
+    speed: "1.7 – 2.5 m/s",
+    speedClass: "speed-fast",
+    huntThreshold: "50-65%",
+    isNew: false,
+    strength: "เร็ว 2.5 m/s เมื่ออยู่ใกล้อุปกรณ์อิเล็กทรอนิกส์ที่เปิดอยู่ Hunt ได้ที่ Sanity 65% เมื่ออยู่ใกล้อุปกรณ์",
+    weakness: "รบกวนอุปกรณ์อิเล็กทรอนิกส์ในระยะที่กว้างกว่าผีอื่นมาก ทำให้เห็นตัวได้ชัด",
+    speedDetail: "พื้นฐาน 1.7 m/s พุ่งเป็น 2.5 m/s เมื่ออยู่ในระยะอุปกรณ์อิเล็กทรอนิกส์ที่ผู้เล่นวางไว้ กลับเป็น 1.7 m/s (พร้อม LoS accel) เมื่อไกลจากอุปกรณ์ ระยะรบกวนอุปกรณ์ขณะ Hunt กว้างกว่าปกติ",
+    behavior: "อุปกรณ์กระตุกจากระยะไกลกว่าปกติขณะ Hunt เร็วขึ้นเฉพาะเมื่ออยู่ใกล้อุปกรณ์ที่ผู้เล่นวาง ไม่รวมอุปกรณ์ในแผนที่เช่นโทรศัพท์หรือทีวี",
+    tips: "ปิดอุปกรณ์ทั้งหมดเมื่อ Hunt เริ่ม ถ้าอุปกรณ์กระตุกจากไกลผิดปกติ = สงสัย Raiju เก็บอุปกรณ์ออกจากห้องผีเพื่อลดความเร็วและ Hunt threshold"
+  },
+  {
+    name: "Obake",
+    evidence: ["emf", "uv", "ghost_orb"],
+    speed: "1.7 m/s",
+    speedClass: "speed-normal",
+    huntThreshold: "50%",
+    isNew: false,
+    strength: "มีโอกาสทิ้ง UV แค่ 75% (ปกติ 100%) รอย UV หายเร็วกว่าปกติ สามารถแปลงร่างขณะ Hunt",
+    weakness: "มีโอกาสทิ้งรอยมือ 6 นิ้วบนพื้นผิว (ยืนยัน Obake ได้ 100%)",
+    speedDetail: "ความเร็วมาตรฐาน 1.7 m/s พร้อม LoS acceleration ปกติ สามารถเปลี่ยนโมเดลผีกลาง Hunt (แปลงร่าง)",
+    behavior: "หลักฐาน UV ไม่น่าเชื่อถือ อาจไม่ปรากฏ รอยนิ้วหายเร็วกว่าปกติ ทิ้งรอยมือ 6 นิ้วได้ สวิตช์ไฟอาจมีรอย 2 จุดแทน 1",
+    tips: "รอยมือ 6 นิ้ว = Obake 100% ถ้า UV ปรากฏบ้างไม่ปรากฏบ้าง (ไม่สม่ำเสมอ) = สงสัย Obake ตรวจพื้นผิวเร็ว ๆ ก่อนรอยจาง"
+  },
+  {
+    name: "The Mimic",
+    evidence: ["spirit_box", "uv", "freezing"],
+    bonusEvidence: ["ghost_orb"],
+    speed: "แปรผัน",
+    speedClass: "speed-variable",
+    huntThreshold: "50% (แปรผัน)",
+    isNew: false,
+    strength: "เลียนแบบพฤติกรรม ความสามารถ และลักษณะเฉพาะของผีอื่นได้ทุกตัว เปลี่ยนผีที่เลียนแบบทุก 30 วินาที – 2 นาที",
+    weakness: "ทิ้ง Ghost Orb เสมอเป็นหลักฐานที่ 4 (ไม่แสดงในสมุด) เป็นผีตัวเดียวที่ให้หลักฐาน 4 ชิ้นได้",
+    speedDetail: "ความเร็วตรงกับผีที่กำลังเลียนแบบ อาจเป็น 1.0 m/s (Revenant ค้นหา) หรือ 3.0 m/s (Revenant ไล่) ขึ้นอยู่กับเงื่อนไขความเร็วของผีที่ copy",
+    behavior: "เลียนแบบผีอื่นสมบูรณ์แบบ 30 วิ – 2 นาที ก่อนสลับ Ghost Orb มีเสมอไม่ว่าจะเลียนแบบผีอะไร ไม่สามารถ copy หลักฐานที่มันไม่มี",
+    tips: "ถ้ามีหลักฐาน 3 ชิ้นตรงกับผีตัวหนึ่ง แต่เห็น Ghost Orb ด้วย (ซึ่งไม่ควรมี) = Mimic พฤติกรรมที่เปลี่ยนไปเรื่อย ๆ (เร็วแล้วช้า ก้าวร้าวแล้วขี้อาย) ช่วยยืนยัน"
+  },
+  {
+    name: "Moroi",
+    evidence: ["spirit_box", "ghost_writing", "freezing"],
+    speed: "1.5 – 3.71 m/s",
+    speedClass: "speed-fast",
+    huntThreshold: "50%",
+    isNew: false,
+    strength: "ผีที่เร็วที่สุดในเกม สูงสุด 3.71 m/s! ความเร็วเพิ่มตาม Sanity เฉลี่ยที่ลดลง สาปผู้เล่นที่ได้ยินเสียงมัน ทำให้ Sanity ลดเร็ว 2 เท่า",
+    weakness: "Incense หยุดมันได้ 12 วินาที (ปกติ 6 วิ) คำสาปแก้ได้ด้วยการกินยา Sanity Pill",
+    speedDetail: "1.5 m/s ที่ Sanity สูง → 2.25 m/s ที่ Sanity 0-5% (พื้นฐาน) เมื่อรวม LoS acceleration ที่ Sanity ต่ำสุด: สูงถึง 3.71 m/s เร็วกว่า Sprint ของผู้เล่น! ความเร็วขึ้นกับ Sanity เฉลี่ยของทีม ไม่ใช่รายบุคคล",
+    behavior: "สาปผู้เล่นที่ได้รับการตอบกลับจาก Spirit Box หรือได้ยินเสียงผ่าน Parabolic Mic ผู้เล่นที่ถูกสาปจะเสีย Sanity เร็ว 2 เท่า คำสาปอยู่จนกว่าจะกินยา มีความเร็วเฉพาะตัวที่เปลี่ยนตาม Sanity ทีม",
+    tips: "รักษา Sanity ให้สูงที่สุด กินยาบ่อย ๆ ถ้า Sanity ลดเร็วผิดปกติหลังใช้ Spirit Box = ถูกสาป (กินยาแก้) ตัด LoS ทันที อย่าพยายามวิ่งหนี Moroi Incense ให้เวลาหนี 12 วินาที"
+  },
+  {
+    name: "Deogen",
+    evidence: ["spirit_box", "ghost_writing", "dots"],
+    speed: "0.4 – 3.0 m/s",
+    speedClass: "speed-variable",
+    huntThreshold: "40%",
+    isNew: false,
+    strength: "รู้ตำแหน่งผู้เล่นทุกคนตลอดเวลา ซ่อนตัวไม่ได้! เร็ว 3.0 m/s เมื่ออยู่ไกลจากผู้เล่น (6m+)",
+    weakness: "ช้ามาก 0.4 m/s เมื่อเข้าใกล้ผู้เล่น (2.5m) ช้ากว่าคนเดินมาก",
+    speedDetail: "3.0 m/s ที่ 6+ เมตร → ค่อย ๆ ช้าลง → 0.4 m/s ที่ 2.5m หรือใกล้กว่า ไม่ใช้ LoS acceleration ความเร็วขึ้นกับระยะทางอย่างเดียว รู้ตำแหน่งผู้เล่นแม่นยำตลอด",
+    behavior: "อาจหายใจแรง/คำราม ผ่าน Spirit Box แทนการตอบปกติ ไม่เคยหลงทางหาผู้เล่น จะเดินตรงไปหาผู้เล่นที่ใกล้ที่สุดเสมอ ต้อง Prestige 0 Level 30+ ถึงจะเจอ",
+    tips: "อย่าซ่อน! มันจะหาคุณเจอและขังคุณมุมห้อง ให้อยู่ใกล้และวิ่งวนรอบเฟอร์นิเจอร์/โต๊ะ ที่ 0.4 m/s มันช้ากว่าคนเดิน หายใจแรงบน Spirit Box = Deogen"
+  },
+  {
+    name: "Thaye",
+    evidence: ["ghost_orb", "ghost_writing", "dots"],
+    speed: "1.0 – 2.75 m/s",
+    speedClass: "speed-variable",
+    huntThreshold: "35-75%",
+    isNew: false,
+    strength: "เริ่มต้นเร็วมาก (2.75 m/s) และก้าวร้าว Hunt ได้ที่ Sanity 75% ตอนแรก อันตรายมากในช่วงแรก",
+    weakness: "แก่ตัวลงตามเวลา ค่อย ๆ ช้าลงและอันตรายน้อยลง ช้าสุดที่ 1.0 m/s เมื่อแก่เต็มที่",
+    speedDetail: "เริ่มที่ 2.75 m/s ลดลง 0.175 m/s ทุกครั้งที่ 'แก่' (เกิดจากผู้เล่นอยู่ใกล้) ช้าสุด 1.0 m/s เมื่อแก่เต็มที่ (10 ครั้ง) ไม่ใช้ LoS acceleration Hunt threshold ลดจาก 75% เหลือ 15% ตามอายุ",
+    behavior: "แก่เร็วขึ้นเมื่อผู้เล่นอยู่ใกล้ห้องผี Activity และความถี่ในการโต้ตอบลดลงตามเวลา ถาม Ouija Board เรื่องอายุจะเห็นอายุเพิ่มขึ้น (ยืนยัน Thaye)",
+    tips: "ระวังมากในช่วงแรก ยิ่งเล่นนานยิ่งปลอดภัย ถาม Ouija Board ว่า 'How old are you?' หลายครั้ง ถ้าอายุเพิ่มขึ้น = Thaye Activity ที่สูงมากตอนแรกแล้วค่อย ๆ ลด = สัญญาณ"
+  },
+  {
+    name: "Obambo",
+    evidence: ["ghost_writing", "uv", "dots"],
+    speed: "1.7 – 2.4 m/s",
+    speedClass: "speed-variable",
+    huntThreshold: "50%",
+    isNew: false,
+    strength: "ขณะอยู่ในสถานะ Aggressive จะ Hunt บ่อยขึ้นและเร็วขึ้น (~2.4 m/s) สามารถเปลี่ยนสถานะกลาง Hunt ได้! คาดเดาไม่ได้มาก",
+    weakness: "ขณะอยู่ในสถานะ Calm จะเหมือนผีปกติ (1.7 m/s) ติดตามง่ายและหลีกเลี่ยงง่าย",
+    speedDetail: "สถานะ Calm: 1.7 m/s (มาตรฐาน) สถานะ Aggressive: ~2.4 m/s (เร็ว) สลับระหว่างสถานะทุก ~2 นาที สามารถเปลี่ยนสถานะระหว่าง Hunt ที่กำลังดำเนินอยู่ได้",
+    behavior: "สลับระหว่าง Calm กับ Aggressive ทุก ~2 นาที Activity Monitor แสดงค่ากระโดดขึ้นลงรุนแรง พฤติกรรมและรูปแบบ Hunt เปลี่ยนกลาง Hunt ได้ถ้าสลับสถานะ",
+    tips: "ดู Activity Monitor ถ้าค่ากระโดดสูง-ต่ำเป็นจังหวะสม่ำเสมอ = สงสัย Obambo เตรียมที่ซ่อนหลายจุดเสมอเพราะมันอาจก้าวร้าวขึ้นกลาง Hunt"
+  },
+  {
+    name: "Dayan",
+    evidence: ["emf", "ghost_orb", "spirit_box"],
+    speed: "1.2 – 2.25 m/s",
+    speedClass: "speed-variable",
+    huntThreshold: "50%",
+    isNew: false,
+    strength: "แข็งแกร่งและเร็วขึ้นเมื่อผู้เล่นเคลื่อนที่ภายใน 10 เมตร (2.25 m/s) การวิ่งหนีจะทำให้มันแข็งแกร่งขึ้น!",
+    weakness: "ช้ามากเมื่อผู้เล่นใกล้ ๆ หยุดนิ่ง (1.2 m/s) การหยุดนิ่งจะทำให้มันอ่อนแอ",
+    speedDetail: "ผู้เล่นเคลื่อนที่ภายใน 10m: 2.25 m/s ผู้เล่นหยุดนิ่งภายใน 10m: 1.2 m/s ไกลกว่า 10m: 1.7 m/s พร้อม LoS acceleration ปกติ แทนที่กลไก LoS มาตรฐานเมื่ออยู่ภายใน 10m",
+    behavior: "เป็นผีเพศหญิงเสมอ Activity เพิ่มเมื่อผู้เล่นเคลื่อนที่ใกล้ ๆ และลดเมื่อหยุดนิ่ง ความเร็วตอบสนองต่อการเคลื่อนไหวของผู้เล่นแบบ real-time ภายใน 10 เมตร",
+    tips: "หยุดนิ่งเมื่อมันอยู่ใกล้ขณะ Hunt จะทำให้มันช้ามาก ใช้ที่ซ่อนแบบอยู่กับที่ อย่าวิ่ง! ถ้า Activity ขึ้นเมื่อเดินในห้องแต่ลดเมื่อหยุดนิ่ง = Dayan เสียงผีเป็นผู้หญิงเสมอ"
+  },
+  {
+    name: "Gallu",
+    evidence: ["emf", "uv", "spirit_box"],
+    speed: "1.36 – 1.96 m/s",
+    speedClass: "speed-variable",
+    huntThreshold: "40-60%",
+    isNew: false,
+    strength: "ใช้อุปกรณ์ป้องกัน (เกลือ, Crucifix, Incense) จะทำให้มัน ENRAGED — เร็วขึ้น (1.96 m/s), Hunt ที่ Sanity สูงขึ้น (60%), และลดประสิทธิภาพอุปกรณ์",
+    weakness: "หลังจากโกรธไปสักพัก จะเข้าสถานะ WEAKENED — ช้าลง (1.36 m/s), Hunt ที่ Sanity ต่ำลง (40%), อุปกรณ์ป้องกันทำงานดีขึ้น",
+    speedDetail: "สถานะ Normal: 1.7 m/s, Hunt ที่ 50% สถานะ Enraged: 1.96 m/s, Hunt ที่ 60% (เกิดจากใช้เกลือ/Crucifix/Incense) สถานะ Weakened: 1.36 m/s, Hunt ที่ 40% (หลังหมดแรงโกรธ) วนรอบ: Normal → Enraged → Weakened → Normal",
+    behavior: "มี 3 สถานะวนรอบตามการใช้อุปกรณ์ป้องกัน ใช้ Crucifix/เกลือ/Incense จะผลักเข้าสถานะ Enraged หลัง Enraged หมดจะเข้า Weakened ซึ่งช้าและอ่อนแอกว่าปกติ",
+    tips: "กลยุทธ์ 1: ยั่วให้โกรธตอน Sanity สูง เพื่อให้มันเหนื่อยเร็ว แล้วสอบสวนตอน Weakened กลยุทธ์ 2: ไม่ใช้อุปกรณ์ป้องกันเลย เพื่อให้มันอยู่ในสถานะ Normal ถ้าใช้อุปกรณ์แล้วผีก้าวร้าวขึ้นแทนที่จะสงบ = สงสัย Gallu"
+  },
+  {
+    name: "Aswang",
+    evidence: ["freezing", "ghost_writing", "dots"],
+    speed: "1.5 – 2.5 m/s",
+    speedClass: "speed-fast",
+    huntThreshold: "50%",
+    isNew: true,
+    strength: "เมื่อเห็นเป้าหมาย (LoS) จะเร่งความเร็วในการไล่ล่าให้สูงขึ้นกว่าผีปกติ ออกตามล่าด้วยความก้าวร้าวเหมือนสัตว์ป่า เล่าขานว่ากัดกินเลือดและศพ ลักษณะดุร้ายแต่กลมกลืนกับสภาพแวดล้อมเมืองได้",
+    weakness: "ชอบ 'ไล่ล่า' มากกว่า 'ค้นหา' — ถ้าตัดสายตา (LoS) และซ่อนตัวเงียบ ๆ มันจะค้นหาช้าลงและไม่ค่อยเดินสำรวจอย่างเป็นระบบ ผู้เล่นที่ซ่อนเก่งหนีรอดง่าย",
+    speedDetail: "พื้นฐานประมาณ 1.5 m/s ขณะเดินสำรวจ (ช้ากว่าผีปกติเล็กน้อย เพราะไม่ขยันค้นหา) เมื่อเห็นผู้เล่นจะเร่งทันทีถึง ~2.5 m/s และคงความเร็วนั้นไว้ตลอดเวลาที่เห็นเป้าหมาย ไม่ใช้ระบบ LoS acceleration แบบสะสมเหมือนผีทั่วไป — เร็วทันทีที่เห็นแล้วช้าลงทันทีเมื่อตัด LoS",
+    behavior: "เป็นผีล่าด้วยสายตา ขณะ Hunt จะรักษา LoS กับเป้าหมายอย่างก้าวร้าว แต่ถ้าตัด LoS ได้จะไม่ค้นหาอย่างมีระบบ มักวนซ้ำที่เดิมและพลาดผู้เล่นที่ซ่อนนิ่ง ๆ พฤติกรรมคล้ายสัตว์นักล่ามากกว่าผีนักสำรวจ",
+    tips: "ตัด LoS ทันทีที่ Hunt เริ่ม! ซ่อนหลังเฟอร์นิเจอร์/ในตู้ และอยู่เงียบสนิท ผีจะวิ่งวนแต่หาไม่เจอ ถ้าผีเร็วมากตอนเห็นคุณ แต่ดูเหมือนเดินวนเปล่า ๆ เมื่อหายตัวไป = สงสัย Aswang หลักฐาน Freezing + Ghost Writing + DOTS ผสมกับพฤติกรรม 'ไล่เร็ว แต่หาช้า' ยืนยันได้"
+  },
+  {
+    name: "Kormos",
+    evidence: ["ghost_orb", "spirit_box", "uv"],
+    speed: "1.7 m/s",
+    speedClass: "speed-normal",
+    huntThreshold: "50%",
+    isNew: true,
+    strength: "ได้ยินเสียงดีเยี่ยม! ชื่อแปลว่า 'ผู้ไม่เห็น' (the one who does not see) ขณะ Hunt จะตรวจจับเสียงผู้เล่นได้ในระยะที่กว้างกว่าผีปกติมาก (เสียงพูด, เสียงฝีเท้าวิ่ง, อุปกรณ์เปิด, ของหล่น) แม้คุณซ่อนเงียบก็ยังถูกได้ยินถ้าเดินเร็วหรือพูดเสียงเบา",
+    weakness: "ตาเกือบบอด! ขณะ Hunt มองเห็นผู้เล่นได้ในระยะใกล้มากเท่านั้น (สั้นกว่าผีอื่นมาก) ไฟฉาย, เห็นตัวผู้เล่น, หรือเดินผ่านหน้าระยะไกลก็ไม่กระตุ้นมัน",
+    speedDetail: "ความเร็วมาตรฐาน 1.7 m/s พร้อม LoS acceleration ปกติ ความอันตรายไม่ได้อยู่ที่ความเร็ว แต่อยู่ที่การตรวจจับด้วยเสียง ทำให้หนียากแม้จะเร็วเท่ากันเพราะมันรู้ตำแหน่งคุณจากเสียง",
+    behavior: "ใช้เสียงนำทางขณะ Hunt แทนการมองเห็น เดินเข้าหาแหล่งเสียงทันที (พูด/วิ่ง/อุปกรณ์ดัง) แต่ละเลยผู้เล่นที่ยืนนิ่งเงียบใกล้ ๆ ขณะปกตินอก Hunt มีพฤติกรรมทั่วไป",
+    tips: "เดินช้า (เดิน Walk ไม่วิ่ง) ปิดอุปกรณ์ทุกอย่าง หยุดพูด ใช้ Crouch เพื่อให้เสียงฝีเท้าเงียบที่สุด ห้ามวิ่งหนีเด็ดขาด! ถ้าผีหันมาเดินตรงเข้าหาทันทีที่คุณพูดหรือวิ่ง แต่ไม่สนใจคุณเมื่อยืนนิ่งใกล้ ๆ = Kormos แน่นอน ตรงข้ามกับ Phantom — Kormos กลัวเสียง ไม่กลัวสายตา"
+  }
+];
+
+const STATE = {
+  selected: new Set(),
+  excluded: new Set(),
+  expanded: new Set(),
+  search: ''
+};
+
+const $ = (id) => document.getElementById(id);
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function renderEvidence() {
+  const grid = $('evidenceGrid');
+  grid.innerHTML = EVIDENCE_TYPES.map(ev => {
+    let cls = 'evidence-btn';
+    if (STATE.selected.has(ev.id)) cls += ' selected';
+    if (STATE.excluded.has(ev.id)) cls += ' excluded';
+    return `<button class="${cls}" data-id="${ev.id}" aria-label="${escapeHtml(ev.name)}">
+      <span class="evidence-icon">${ev.icon}</span>
+      <span>${escapeHtml(ev.name)}</span>
+      <span class="evidence-hotkey">${ev.key}</span>
+    </button>`;
+  }).join('');
+
+  grid.querySelectorAll('.evidence-btn').forEach(btn => {
+    const id = btn.dataset.id;
+    btn.addEventListener('click', () => toggleEvidence(id));
+    btn.addEventListener('contextmenu', (e) => { e.preventDefault(); toggleExclude(id); });
+    attachLongPress(btn, () => toggleExclude(id));
+  });
+}
+
+function attachLongPress(el, callback) {
+  let timer = null;
+  let triggered = false;
+  const start = (e) => {
+    triggered = false;
+    timer = setTimeout(() => {
+      triggered = true;
+      callback();
+      if (navigator.vibrate) navigator.vibrate(30);
+    }, 450);
+  };
+  const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } };
+  el.addEventListener('touchstart', start, { passive: true });
+  el.addEventListener('touchend', (e) => { if (triggered) { e.preventDefault(); } cancel(); });
+  el.addEventListener('touchmove', cancel);
+  el.addEventListener('touchcancel', cancel);
+}
+
+function toggleEvidence(id) {
+  STATE.excluded.delete(id);
+  if (STATE.selected.has(id)) { STATE.selected.delete(id); showToast(`ยกเลิก: ${getEvName(id)}`); }
+  else { STATE.selected.add(id); showToast(`✓ เลือก: ${getEvName(id)}`, 'include'); }
+  update();
+}
+
+function toggleExclude(id) {
+  STATE.selected.delete(id);
+  if (STATE.excluded.has(id)) { STATE.excluded.delete(id); showToast(`ยกเลิกการตัด: ${getEvName(id)}`); }
+  else { STATE.excluded.add(id); showToast(`✕ ตัดออก: ${getEvName(id)}`, 'exclude'); }
+  update();
+}
+
+function getEvName(id) { return (EVIDENCE_TYPES.find(e => e.id === id) || {}).name || id; }
+
+function resetEvidence() {
+  STATE.selected.clear();
+  STATE.excluded.clear();
+  STATE.expanded.clear();
+  $('searchInput').value = '';
+  STATE.search = '';
+  update();
+  showToast('🔄 รีเซ็ตทั้งหมดแล้ว');
+}
+
+function toggleCard(idx) {
+  if (STATE.expanded.has(idx)) STATE.expanded.delete(idx);
+  else STATE.expanded.add(idx);
+  renderGhosts();
+}
+
+function matchesSearch(ghost) {
+  if (!STATE.search) return true;
+  const q = STATE.search.toLowerCase();
+  const haystack = [
+    ghost.name,
+    ghost.speed,
+    ghost.huntThreshold,
+    ghost.strength,
+    ghost.weakness,
+    ghost.speedDetail,
+    ghost.behavior,
+    ghost.tips,
+    ...ghost.evidence.map(e => getEvName(e)),
+    ...(ghost.bonusEvidence || []).map(e => getEvName(e))
+  ].join(' ').toLowerCase();
+  return haystack.includes(q);
+}
+
+function getFilteredGhosts() {
+  return GHOSTS.map((ghost, idx) => {
+    const allEvidence = [...ghost.evidence, ...(ghost.bonusEvidence || [])];
+    const selectedArr = [...STATE.selected];
+    const hasSelected = selectedArr.every(ev => allEvidence.includes(ev));
+    const hasExcluded = [...STATE.excluded].some(ev => ghost.evidence.includes(ev));
+    const matchedCount = selectedArr.filter(ev => allEvidence.includes(ev)).length;
+    const visibleInSearch = matchesSearch(ghost);
+    return {
+      ...ghost,
+      idx,
+      matched: hasSelected && !hasExcluded,
+      matchedCount,
+      totalSelected: selectedArr.length,
+      visibleInSearch
+    };
+  });
+}
+
+function renderGhosts() {
+  const grid = $('ghostGrid');
+  const filtered = getFilteredGhosts();
+  const visible = filtered.filter(g => g.visibleInSearch);
+  const matchCount = visible.filter(g => g.matched).length;
+  $('matchCount').textContent = matchCount;
+
+  if (visible.length === 0) {
+    grid.innerHTML = `<div class="no-results">
+      <div class="no-results-icon">🔍</div>
+      <div>ไม่พบผีที่ตรงกับ "<strong>${escapeHtml(STATE.search)}</strong>"</div>
+      <div style="margin-top:8px;font-size:0.85rem;">ลองค้นหาด้วยคำอื่น หรือกด Esc เพื่อล้าง</div>
+    </div>`;
+    return;
+  }
+
+  const sorted = [...visible].sort((a, b) => {
+    if (a.matched && !b.matched) return -1;
+    if (!a.matched && b.matched) return 1;
+    if (a.matchedCount !== b.matchedCount) return b.matchedCount - a.matchedCount;
+    return a.name.localeCompare(b.name);
+  });
+
+  grid.innerHTML = sorted.map(ghost => {
+    const isExpanded = STATE.expanded.has(ghost.idx);
+    const isPerfect = ghost.matched && ghost.totalSelected >= 3;
+    const cardClass = `ghost-card ${ghost.matched ? 'matched' : 'eliminated'} ${isPerfect ? 'perfect-match' : ''} ${isExpanded ? 'expanded' : ''}`;
+
+    const evidenceTags = ghost.evidence.map(ev => {
+      const evData = EVIDENCE_TYPES.find(e => e.id === ev);
+      const isMatched = STATE.selected.has(ev);
+      return `<span class="evidence-tag ${isMatched ? 'matched' : ''}">${isMatched ? '✓ ' : ''}${evData ? escapeHtml(evData.name) : ev}</span>`;
+    }).join('');
+
+    const bonusTags = (ghost.bonusEvidence || []).map(ev => {
+      const evData = EVIDENCE_TYPES.find(e => e.id === ev);
+      return `<span class="evidence-tag bonus">${evData ? escapeHtml(evData.name) : ev} ★</span>`;
+    }).join('');
+
+    const matchPill = ghost.totalSelected > 0
+      ? `<span class="match-pill ${ghost.matchedCount === 0 ? 'zero' : ''}">${ghost.matchedCount}/${ghost.totalSelected} ตรง</span>`
+      : '';
+
+    return `<div class="${cardClass}" data-idx="${ghost.idx}">
+      <div class="ghost-card-header">
+        <div class="ghost-name-section">
+          <div class="ghost-name">${escapeHtml(ghost.name)}${ghost.isNew ? '<span class="new-badge">NEW</span>' : ''}</div>
+          <div class="ghost-meta-row">
+            <span class="ghost-id">Hunt: ${escapeHtml(ghost.huntThreshold)} Sanity</span>
+            ${matchPill}
+          </div>
+        </div>
+        <div class="ghost-speed-badge ${ghost.speedClass}">${escapeHtml(ghost.speed)}</div>
+      </div>
+      <div class="ghost-evidence-row">${evidenceTags}${bonusTags}</div>
+      <div class="ghost-details">
+        <div class="detail-section">
+          <div class="detail-label label-strength">⚔ จุดแข็ง</div>
+          <div class="detail-text">${escapeHtml(ghost.strength)}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label label-weakness">🛡 จุดอ่อน</div>
+          <div class="detail-text">${escapeHtml(ghost.weakness)}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label label-speed">🏃 รายละเอียดความเร็ว</div>
+          <div class="detail-text">${escapeHtml(ghost.speedDetail)}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label label-behavior">👻 พฤติกรรม</div>
+          <div class="detail-text">${escapeHtml(ghost.behavior)}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label label-tips">💡 วิธีสังเกต</div>
+          <div class="detail-text">${escapeHtml(ghost.tips)}</div>
+        </div>
+      </div>
+      <div class="expand-hint">${isExpanded ? '▴ กดเพื่อย่อ ▴' : '▾ กดเพื่อดูรายละเอียด ▾'}</div>
+    </div>`;
+  }).join('');
+
+  grid.querySelectorAll('.ghost-card:not(.eliminated)').forEach(card => {
+    card.addEventListener('click', () => toggleCard(parseInt(card.dataset.idx)));
+  });
+}
+
+function updateUrlState() {
+  const params = new URLSearchParams();
+  if (STATE.selected.size) params.set('s', [...STATE.selected].join(','));
+  if (STATE.excluded.size) params.set('x', [...STATE.excluded].join(','));
+  if (STATE.search) params.set('q', STATE.search);
+  const hash = params.toString();
+  history.replaceState(null, '', hash ? `#${hash}` : window.location.pathname);
+}
+
+function loadUrlState() {
+  const hash = window.location.hash.slice(1);
+  if (!hash) return;
+  const params = new URLSearchParams(hash);
+  const validIds = new Set(EVIDENCE_TYPES.map(e => e.id));
+  (params.get('s') || '').split(',').filter(Boolean).forEach(id => { if (validIds.has(id)) STATE.selected.add(id); });
+  (params.get('x') || '').split(',').filter(Boolean).forEach(id => { if (validIds.has(id)) STATE.excluded.add(id); });
+  const q = params.get('q');
+  if (q) { STATE.search = q; $('searchInput').value = q; }
+}
+
+let toastTimer = null;
+function showToast(msg, type = '') {
+  const toast = $('toast');
+  toast.textContent = msg;
+  toast.className = 'toast visible ' + type;
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { toast.className = 'toast ' + type; }, 1800);
+}
+
+function update() {
+  renderEvidence();
+  renderGhosts();
+  updateUrlState();
+  updateSearchClear();
+}
+
+function updateSearchClear() {
+  $('searchClear').classList.toggle('visible', !!STATE.search);
+}
+
+function focusSearch() {
+  const input = $('searchInput');
+  input.focus();
+  input.select();
+}
+
+function openHelp() { $('helpModal').classList.add('visible'); }
+function closeHelp() { $('helpModal').classList.remove('visible'); }
+
+function handleKeydown(e) {
+  const tag = document.activeElement.tagName;
+  const inInput = tag === 'INPUT' || tag === 'TEXTAREA';
+
+  if (e.key === 'Escape') {
+    if ($('helpModal').classList.contains('visible')) { closeHelp(); return; }
+    if (inInput) { $('searchInput').value = ''; STATE.search = ''; $('searchInput').blur(); update(); return; }
+    if (STATE.search) { $('searchInput').value = ''; STATE.search = ''; update(); return; }
+  }
+
+  if (inInput) return;
+
+  if (e.key === '/') { e.preventDefault(); focusSearch(); return; }
+  if (e.key === '?') { e.preventDefault(); $('helpModal').classList.toggle('visible'); return; }
+  if (e.key === 'r' || e.key === 'R') { e.preventDefault(); resetEvidence(); return; }
+
+  if (e.key >= '1' && e.key <= '7') {
+    const idx = parseInt(e.key) - 1;
+    const ev = EVIDENCE_TYPES[idx];
+    if (!ev) return;
+    e.preventDefault();
+    if (e.shiftKey) toggleExclude(ev.id);
+    else toggleEvidence(ev.id);
+  }
+}
+
+function init() {
+  loadUrlState();
+  renderEvidence();
+  renderGhosts();
+  updateSearchClear();
+
+  $('searchInput').addEventListener('input', (e) => {
+    STATE.search = e.target.value.trim();
+    renderGhosts();
+    updateUrlState();
+    updateSearchClear();
+  });
+
+  $('searchClear').addEventListener('click', () => {
+    $('searchInput').value = '';
+    STATE.search = '';
+    $('searchInput').focus();
+    update();
+  });
+
+  $('resetBtn').addEventListener('click', resetEvidence);
+  $('helpBtn').addEventListener('click', openHelp);
+  $('helpClose').addEventListener('click', closeHelp);
+  $('helpModal').addEventListener('click', (e) => { if (e.target.id === 'helpModal') closeHelp(); });
+  $('aboutLink').addEventListener('click', (e) => { e.preventDefault(); openHelp(); });
+
+  document.addEventListener('keydown', handleKeydown);
+
+  window.addEventListener('hashchange', () => {
+    STATE.selected.clear();
+    STATE.excluded.clear();
+    loadUrlState();
+    update();
+  });
+}
+
+init();
+</script>
+</body>
+</html>
